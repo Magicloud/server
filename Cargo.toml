@@ -1,7 +1,7 @@
 cargo-features = ["edition2021"]
 
 [package]
-name = "jian-ai"
+name = "jian_ai"
 version = "0.1.0"
 authors = ["Magicloud <1886157+Magicloud@users.noreply.github.com>"]
 edition = "2021"
@@ -9,10 +9,10 @@ edition = "2021"
 [dependencies]
 rocket = "0.4.7"
 chrono = { version = "0.4.19", features = ["serde"] }
-kv = { version = "0.22.0", features = ["json-value"] }
 serde = "1.0.126"
+diesel = { version = "1.4.6", features = ["sqlite", "chrono"] }
 
 [dependencies.rocket_contrib]
 version = "0.4.10"
 default-features = false
-features = ["serve", "json"]
+features = ["serve", "json", "diesel_sqlite_pool"]
