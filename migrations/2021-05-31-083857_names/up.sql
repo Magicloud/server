@@ -1,1 +1,3 @@
--- Your SQL goes here
+CREATE TABLE names (
+  name text PRIMARY KEY NOT NULL
+);
