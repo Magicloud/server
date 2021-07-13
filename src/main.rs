@@ -11,8 +11,9 @@ use std::path::PathBuf;
 use rocket_contrib::serve::StaticFiles;
 use rocket_contrib::json::Json as RJson;
 use std::fs::create_dir_all;
-use jian_ai::schema::photos;
-//use jian_ai::schema::names;
+use rocket::response::Debug;
+use jian_ai_server::schema::photos;
+//use jian_ai_server::schema::names;
 
 #[database("jian_ai")]
 struct DbConn(diesel::SqliteConnection);
@@ -27,47 +28,63 @@ struct Photo {
 }
 
 #[post("/new_image?<camera_id>&<food_weight>", data = "<data>")]
-fn new_image(db: DbConn, camera_id: String, food_weight: i16, data: Data) -> Result<(), Box<dyn std::error::Error>> {
-    use jian_ai::schema::photos::dsl as photo;
+fn new_image(db: DbConn, camera_id: String, food_weight: i16, data: Data) -> Result<(), Debug<Box<dyn std::error::Error>>> {
+    use jian_ai_server::schema::photos::dsl as photo;
     let utc: DateTime<Utc> = Utc::now();
     let filename = format!("{}-{}.jpg", camera_id, utc.format("%Y%m%d_%H%M%S_%f"));
     let path: PathBuf = [env!("CARGO_MANIFEST_DIR"), "pics", &filename].iter().collect();
-    data.stream_to_file(path)?;
+    eprintln!("{}", path.as_path().display());
+    data.stream_to_file(path).map_err(|x| Debug(x.into()))?;
     // identify -> name
     let pic = Photo { datetime: None
                     , filename: filename.clone()
                     , camera_id: camera_id
                     , food_weight: food_weight
                     , name: None };
-    insert_into(photo::photos).values(&pic).execute(&*db)?;
+    insert_into(photo::photos).values(&pic).execute(&*db).map_err(|x| Debug(x.into()))?;
     Ok(())
 }
 
 #[get("/names")]
-fn names(db: DbConn) -> Result<RJson<Vec<String>>, Box<dyn std::error::Error>> {
-    use jian_ai::schema::names::dsl as name;
-    let vec = name::names.select(name::name).load(&*db)?;
+fn names(db: DbConn) -> Result<RJson<Vec<String>>, Debug<Box<dyn std::error::Error>>> {
+    use jian_ai_server::schema::names::dsl as name;
+    let vec = name::names.select(name::name).load(&*db).map_err(|x| Debug(x.into()))?;
     Ok(RJson(vec))
 }
 
 #[get("/unnamed_images")]
-fn unnamed_images(db: DbConn) -> Result<RJson<Vec<String>>, Box<dyn std::error::Error>> {
-    use jian_ai::schema::photos::dsl as photo;
-    let vec = photo::photos.select(photo::filename).filter(photo::name.is_null()).load(&*db)?;
+fn unnamed_images(db: DbConn) -> Result<RJson<Vec<String>>, Debug<Box<dyn std::error::Error>>> {
+    use jian_ai_server::schema::photos::dsl as photo;
+    let vec = photo::photos.select(photo::filename).filter(photo::name.is_null()).load(&*db).map_err(|x| Debug(x.into()))?;
     Ok(RJson(vec))
 }
 
 #[post("/name_image?<photo_filename>&<name>")]
-fn name_image(db: DbConn, photo_filename: String, name: String) -> Result<(), Box<dyn std::error::Error>> {
-    use jian_ai::schema::photos::dsl as photo;
-    update(photo::photos.filter(photo::filename.eq(photo_filename))).set(photos::name.eq(Some(name))).execute(&*db)?;
+fn name_image(db: DbConn, photo_filename: String, name: String) -> Result<(), Debug<Box<dyn std::error::Error>>> {
+    use jian_ai_server::schema::photos::dsl as photo;
+    update(photo::photos.filter(photo::filename.eq(photo_filename))).set(photos::name.eq(Some(name))).execute(&*db).map_err(|x| Debug(x.into()))?;
     Ok(())
 }
 
 #[post("/new_names?<names>")]
-fn new_names(db: DbConn, names: String) -> Result<(), Box<dyn std::error::Error>> {
-    use jian_ai::schema::names::dsl as name;
-    names.split(',').map(|name| insert_into(name::names).values(name::name.eq(name)).execute(&*db)).collect::<QueryResult<Vec<usize>>>()?;
+fn new_names(db: DbConn, names: String) -> Result<(), Debug<Box<dyn std::error::Error>>> {
+    use jian_ai_server::schema::names::dsl as name;
+    names.split(',').map(|name| insert_into(name::names).values(name::name.eq(name)).execute(&*db)).collect::<QueryResult<Vec<usize>>>().map_err(|x| Debug(x.into()))?;
+    Ok(())
+}
+
+#[derive(QueryableByName)]
+struct Useless {
+    #[sql_type = "diesel::sql_types::Text"]
+    _ret: String
+}
+
+#[get("/init")]
+fn db_init(db:DbConn) -> Result<(), Debug<Box<dyn std::error::Error>>> {
+    let confs = ["PRAGMA journal_mode = WAL", "PRAGMA synchronous = NORMAL", "PRAGMA foreign_keys = ON", "PRAGMA busy_timeout = 15"];
+    for conf in confs {
+        let _x = diesel::sql_query(conf).load::<Useless>(&*db);
+    }
     Ok(())
 }
 
@@ -81,6 +98,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     create_dir_all([env!("CARGO_MANIFEST_DIR"), "pics"].iter().collect::<PathBuf>())?;
     rocket::ignite()
         .attach(DbConn::fairing())
+        .mount("/db", routes![db_init])
         .mount("/apis", routes![new_image, names, unnamed_images, name_image, new_names])
         .mount("/pics", StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/pics")))
         .mount("/", YewFiles {root: [env!("CARGO_MANIFEST_DIR"), "webpages", "static"].iter().collect::<PathBuf>(), default_page: ["index.html"].iter().collect::<PathBuf>(), rank: 100})// StaticFiles::from([env!("CARGO_MANIFEST_DIR"), "webpages", "static"].iter().collect::<PathBuf>()))
