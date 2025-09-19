@@ -1,0 +1,26 @@
+# values.yaml
+envFromSecrets:
+  - cam-cred
+  - mqtt-cred
+image:
+  tag: "0.15.1"
+config: |
+  mqtt:
+    host: 192.168.0.251
+    port: 18883
+    user: "{FRIGATE_mqtt_username}"
+    password: "{FRIGATE_mqtt_password}"
+  go2rtc:
+    log:
+      exec: trace
+    streams:
+      balcony:
+        - ffmpeg:rtsp://{FRIGATE_cam_username}:{FRIGATE_cam_password}@192.168.0.103:554/stream2&channel=1#video=h264#audio=copy#raw=-vf "v360=fisheye:octahedron:roll=45,rotate=3*PI/4"
+  cameras:
+    balcony:
+      ffmpeg:
+        inputs:
+          - path: rtsp://127.0.0.1:8554/balcony
+            input_args: preset-rtsp-restream
+            roles:
+              - detect

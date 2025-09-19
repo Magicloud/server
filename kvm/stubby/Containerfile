@@ -1,0 +1,6 @@
+FROM alpine:latest
+
+RUN apk add --no-cache stubby && \
+    sed -i -e '/^listen_addresses:/{a\  - 0.0.0.0' -e 'n;N;d}' /etc/stubby/stubby.yml
+
+CMD [ "stubby" ]

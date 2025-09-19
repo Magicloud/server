@@ -1,0 +1,9 @@
+namespace: v2ray
+
+configMapGenerator:
+- name: config-json
+  files:
+  - config.json=server.json
+
+resources:
+- v2ray.yaml

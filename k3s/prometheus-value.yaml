@@ -1,0 +1,26 @@
+grafana:
+  ingress:
+    enabled: true
+    path: "/grafana"
+  grafana.ini:
+    server:
+      root_url: "/grafana/"
+      serve_from_sub_path: true
+alertmanager:
+  ingress:
+    enabled: true
+    paths:
+      - "/alertmanager"
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: monitoring-strip-prefix-alertmanager@kubernetescrd
+  alertmanagerSpec:
+    externalUrl: "http://192.168.0.102/alertmanager/"
+prometheus:
+  ingress:
+    enabled: true
+    paths:
+      - "/prometheus"
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: monitoring-strip-prefix-prometheus@kubernetescrd
+  prometheusSpec:
+    externalUrl: "http://192.168.0.102/prometheus/"

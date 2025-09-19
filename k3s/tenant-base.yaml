@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minio-tenant
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: storage-configuration
+  namespace: minio-tenant
+spec:
+  encryptedData:
+    config.env: AgA1ZqYT8FFGkgxwvu6r8C3XWHvA5B5WIYUNP5HU5WHVKMijSPu4pMyk45sydFviLW3i/CKFVA2h/4D28CXIz5Z4Na4uzsCTqDP2iOP6RDxVRxmABXkjABozQftBBp8hr/lUk4K7Z2gFZCoxCpq+jtnLJXGtxfXFs/UkcfmB1HHtiHfS7mEJorfgf/oEIfFv9W5agw/Vu/DBIUEgKorx8khA630AGtJwa7xpE3TcfdAIolKcszFMGh6J0i8ogvkl6UiIg0pnN7fvbk6p7pzkIkp0ur3Fo7viEVFU6MBLomamgUDGIqXyCM9Iww881Dy3wCdwC/XM9k2KkaJizZ6bIvkgCe6ZoobswI+BLcsUDwhOpNs3eSQsK6dWcbsyqPNWbshSrPPlByiqLSvnrWRg6Li3zmjsEogOLDQW3AG9w4ERFYKgvEnNmni0ECxHuW60tXIpTVHnGeqZutFm0cb3Jc2h3XBTj7Um2PJgpd2kP/Rvq6V7GEGB/wj80sqgC8HpMHk5iemGrFoN4QUbQQwPddWSGUtbfXiNdbJH3be4EGVg2JAzrLWD4Oz9bECRqYWD3Ifd0O6xVEiMmBph9wNkVyZfUcjH/a+G950LdqF9L4Dx+PMO/sbA+VavAFqJMxIqA/LwXEvnQ8/a0USv24xOjSr4HGhbX8c2odQm8wV40bqhzvjRZgUed1KPzSyODJJmlCGfkB8T+YeoKJb8OJO4SwDmsSUbsd9zzVK1/jIR04ALam5ZVfsTDrAB4CgGzFPuqSIIR2gTbixSlfvnc847Gh1HTtbUbuYO4E16XHG/YcbigeNkloOGYMvnyFU/4DBBETtPSwKLdAN9wH2HgCkw4D+mTRO2i5YN9ZWPmVlEib2sUw5Z4BLJ9EWVQpU=
+  template:
+    metadata:
+      name: storage-configuration
+      namespace: minio-tenant
+    type: Opaque
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: storage-user
+  namespace: minio-tenant
+spec:
+  encryptedData:
+    CONSOLE_ACCESS_KEY: AgAfDMA3QP7sHt1EkwJGEgq31TYKqj1D02N0YphqKu62KljUVjCYYWBDgbYeCwp6xxoH5POT+lso2fYju1uKFC8Pj/cYQ8w+K89IkEHlIUxuso8vmfOQGgYFbKIwlgKl9R7dqsIyR6EGm+I0qGmER7LbhJZL31Eun8XNZghM96TXTK/By4RCEl3qfGb1SE42KdPuOalAy2KfjPF2/1MX9jt63C2JHXZcN1QfJzKc9CeBbLJ4S+/eug8jvZRldN2aQQAppvyTvsLSy9NX4U6Tqk2gaEklbtHLq0kMcSHwztu8bCjNJaWgaDoEkwkRuyyJG+7xKHxjfeWXod8E5CztrYRPLyhikksr57Tsuubb5Ly/46o/r0D9HvOFW1v3qRRkZlgF9bkxd5R1WwmIcX54EbhAO47tCLlO0IgSskRWwWL1lBIQLim9DMBQV1WWezLP14JS6a5Kem7tMmD+9anj+zUYVBJghbi4rCC2k+Nyrzl12zgCiv50MZN/uia0bugZiZglyaG561fLimFkXRvcqjeep19idqJEIwOP0re+9UYf+fp7hFUg3m3gj4lbPmsYKs7iEMJ/f2V1tfo8jmFf25lwNL+YsQdky0l+9BacSrc9zkpze2KnzXHmWvIoDdbyxaPt3R/fpX87nnPBzMx7wxP3qyr7lgOOOIXIKbivx/3FdALuBClGdWE6OP4gd9PUqs9bR+Noa/qR
+    CONSOLE_SECRET_KEY: AgBPZGpylUxZXcPsIMrXcijZ1YTvGlGUbWllaEv9kASuB/mEzquHZhR4LNG3rVgqG6jPR+aNJo+HHlFdoz7t0FofYZe6pK5TpxQuT5f4S/G5rl9b8XOWwSZVvwrLXMgJMGeoL4T+7Eq5ZqeNoo5Wi0fNlYC92nKTebqMO9daIkO+q9NeGLi9Ul4FTKjh+8nCpMz3yPXxgz5aoExNJt9jD+Jz7jdZpcKe01bRp3BgVgXCW4S5Trh0QUJepDGPjWr4H37fF3ESW+gWxWkOrVUknQbxpH891ZUAvR7qHwxP3FcWqknmb7WQNd+ccZylTFMybI0rEusFzvhQ6mKR4OvXEdLDfYVbB7hNJkX2tuvjdLDzG1Cs7qHqOPS9Jjtm5K9/0AR9FhRR0R6yIKzG6FtDo6GOqPqQL+HTxEEkUSyXBFwZnOKtwPVQVoempIka96l6fzTltIfFYVAolcNdvIgLQ7SgN8WxkkixuyP2DGYwa72uyhAStedCl14o0RjhPhF9tfNVoYjVJqHwP0IBnaVLYUboUh2s8IsUI7Ib5mrdrcC9z7Byfng8yaWmpNlJobMBrTISUD26fJAOBKQA96f7RF+f+tJM66qPUHe5Zlv9O7kwc+G3rksJjvG4kpqKPk/XLYeJAH1M6RRawuXX5H9Mz1/4P07F9nA9hy7ezfQCan2O3qwbn48ZU5MpmFSFgeBYFgSxV5VscTEq4jstAWQGuGi6
+  template:
+    metadata:
+      creationTimestamp: null
+      name: storage-user
+      namespace: minio-tenant
+    type: Opaque
+---
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  # annotations:
+  #   prometheus.io/path: /minio/v2/metrics/cluster
+  #   prometheus.io/port: "9000"
+  #   prometheus.io/scrape: "true"
+  labels:
+    app: minio
+  name: any
+  namespace: minio-tenant
+spec:
+  configuration:
+    name: storage-configuration
+  image: quay.io/minio/minio:RELEASE.2024-10-02T17-50-41Z
+  mountPath: /export
+  podManagementPolicy: Parallel
+  env:
+    - name: MINIO_BROWSER_REDIRECT_URL
+      value: "http://192.168.0.102/minio/"
+    - name: MINIO_PROMETHEUS_AUTH_TYPE
+      value: "public"
+  pools:
+    - name: pool-0
+      servers: 1
+      volumeClaimTemplate:
+        apiVersion: v1
+        kind: persistentvolumeclaims
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Ti
+          storageClassName: local-path
+      volumesPerServer: 4
+  requestAutoCert: false
+  users:
+    - name: storage-user
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  namespace: minio-tenant
+  name: strip-prefix-minio
+spec:
+  stripPrefix:
+    forceSlash: true
+    prefixes:
+      - /minio
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-any-console
+  namespace: minio-tenant
+  annotations:
+    #   ingress.kubernetes.io/protocol: https
+    traefik.ingress.kubernetes.io/router.middlewares: minio-tenant-strip-prefix-minio@kubernetescrd
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /minio
+            pathType: Prefix
+            backend:
+              service:
+                name: any-console
+                port:
+                  number: 9090
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: minio-server
+  namespace: minio-tenant
+  labels:
+    release: monitoring
+spec:
+  endpoints:
+    - port: "9000"
+      path: /minio/v2/metrics/cluster
+      interval: 60s
+  selector:
+    matchLabels:
+      v1.min.io/tenant: any

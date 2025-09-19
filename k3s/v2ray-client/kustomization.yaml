@@ -1,0 +1,10 @@
+namespace: proxy
+
+configMapGenerator:
+- name: config-json
+  files:
+  - config.json=client.json
+
+resources:
+- v2ray.yaml
+- socks2http.yaml

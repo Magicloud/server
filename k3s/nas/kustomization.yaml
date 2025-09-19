@@ -1,0 +1,9 @@
+namespace: nas
+
+configMapGenerator:
+- name: smb-conf
+  files:
+  - smb.conf=smb.conf
+
+resources:
+- samba.yaml

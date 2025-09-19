@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stubby
+  namespace: proxy
+  labels:
+    app: stubby
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stubby
+  template:
+    metadata:
+      labels:
+        app: stubby
+    spec:
+      containers:
+      - name: stubby
+        image: localhost:5000/stubby:latest
+        ports:
+        - containerPort: 53
+          protocol: "TCP"
+        - containerPort: 53
+          protocol: "UDP"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stubby
+  namespace: proxy
+spec:
+  selector:
+    app: stubby
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 53
+      targetPort: 53
+      name: tcp
+    - protocol: UDP
+      port: 53
+      targetPort: 53
+      name: udp

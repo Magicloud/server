@@ -1,0 +1,22 @@
+namespacesToMonitor:
+- default
+
+cloud:
+  logs:
+    enabled: false
+  metrics:
+    enabled: false
+  traces:
+    enabled: false
+
+local:
+  grafana:
+    enabled: true
+  logs:
+    enabled: true
+  metrics:
+    enabled: true
+  traces:
+    enabled: true
+  minio:
+    enabled: false

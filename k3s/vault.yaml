@@ -1,0 +1,15 @@
+global:
+  namespace: "vault"
+  serverTelemetry:
+    prometheusOperator: true
+server:
+  standalone:
+    enabled: false
+  ha:
+    enabled: true
+    replicas: 1
+    raft:
+      enabled: true
+ui:
+  enabled: true
+  serviceType: "LoadBalancer"

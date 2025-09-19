@@ -1,0 +1,3 @@
+[submodule "k3s/deepsearcher/deep-searcher"]
+	path = k3s/deepsearcher/deep-searcher
+	url = https://github.com/zilliztech/deep-searcher
