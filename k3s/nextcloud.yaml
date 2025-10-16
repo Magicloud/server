@@ -1,0 +1,28 @@
+ingress:
+  enabled: true
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: nextcloud.magicloud.lan.
+
+nextcloud:
+  host: 'nextcloud.magicloud.lan'
+  existingSecret:
+    enabled: true
+    secretName: nextcloud-user
+    usernameKey: username
+    passwordKey: password
+  extraVolumes:
+    - name: local
+      hostPath:
+        path: /mnt/data/nextcloud
+        type: Directory
+  extraVolumeMounts:
+    - name: local
+      mountPath: /nextcloud/data
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+rbac:
+  enabled: true

@@ -1,0 +1,36 @@
+name: Rust Nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  build-n-push:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Get date
+      run: echo "TODAY=$(date -u +'%Y%m%d')" >> $GITHUB_ENV
+
+    # - name: Lowercase Repo Name
+    #   run: echo "REPO_NAME=$(echo -n "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Login
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: "{{defaultContext}}:images/rust-nightly"
+        push: true
+        tags: |
+          ghcr.io/magicloud/rust-nightly:${{ env.TODAY }}
+          ghcr.io/magicloud/rust-nightly:latest
