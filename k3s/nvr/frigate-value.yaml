@@ -1,4 +1,3 @@
-# values.yaml
 envFromSecrets:
   - cam-cred
   - mqtt-cred
@@ -24,3 +23,12 @@ config: |
             input_args: preset-rtsp-restream
             roles:
               - detect
+ingress:
+  enabled: true
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: frigate.magicloud.lan.
+  hosts:
+    - host: frigate.magicloud.lan
+      paths:
+        - path: '/'
+          portName: http

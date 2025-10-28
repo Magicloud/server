@@ -12,4 +12,9 @@ server:
       enabled: true
 ui:
   enabled: true
-  serviceType: "LoadBalancer"
+ingress:
+    enabled: true
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: vault.magicloud.lan.
+    hosts:
+      - host: vault.magicloud.lan

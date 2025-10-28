@@ -2,6 +2,14 @@ ingress:
   enabled: true
   annotations:
     external-dns.alpha.kubernetes.io/hostname: nextcloud.magicloud.lan.
+    cert-manager.io/issuer: step-issuer
+    cert-manager.io/issuer-kind: StepClusterIssuer
+    cert-manager.io/issuer-group: certmanager.step.sm
+  tls:
+    - secretName: nextcloud-tls
+      hosts:
+        - nextcloud.magicloud.lan
+
 
 nextcloud:
   host: 'nextcloud.magicloud.lan'
