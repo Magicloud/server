@@ -1,0 +1,32 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: debian13
+spec:
+  runStrategy: Always
+  template:
+    spec:
+      domain:
+        cpu:
+          cores: 2
+        # guest memory defaultly equal to this
+        resources:
+          requests:
+            memory: 4G
+        devices:
+          disks:
+            - name: disk0
+              disk:
+                bus: virtio
+          interfaces:
+          - name: bridge
+            bridge: {}
+      networks:
+      - name: bridge
+        multus:
+          default: true
+          networkName: vm-bridge
+      volumes:
+        - name: disk0
+          persistentVolumeClaim:
+            claimName: debian13

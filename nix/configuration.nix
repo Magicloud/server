@@ -26,7 +26,7 @@
     supportedFilesystems = [ "xfs" "zfs" ];
     zfs.extraPools = [ "raid" ];
   };
-  environment.systemPackages = with pkgs; [ k3s buildkit
+  environment.systemPackages = with pkgs; [ k3s buildkit nftables
     ((vim_configurable.override { }).customize {
       vimrcConfig.customRC = ''
         set mouse=
@@ -132,7 +132,8 @@
           };
         in {
           plugins."io.containerd.grpc.v1.cri".cni = {
-            bin_dir = "${fullCNIPlugins}/bin";
+#            bin_dir = "${fullCNIPlugins}/bin";
+            bin_dir = "/var/lib/rancher/k3s/data/cni";
             conf_dir = "/var/lib/rancher/k3s/agent/etc/cni/net.d/";
           };
           state = "/mnt/data/k3s/";
@@ -172,11 +173,12 @@
     extraFlags = toString [
       "--container-runtime-endpoint unix:///run/containerd/containerd.sock"
       "--write-kubeconfig-mode 644"
+#      "--kube-apiserver-arg=--secure-port=6344"
     ];
   };
   systemd.services.containerd = {
     environment = {
-      HTTPS_PROXY = "http://192.168.0.121:8080/";
+      HTTPS_PROXY = "http://192.168.0.102:8080/";
     };
   };
 #  systemd.services.xrdp = {

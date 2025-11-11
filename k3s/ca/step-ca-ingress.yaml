@@ -17,10 +17,10 @@ spec:
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
- name: step-ca
+  name: step-ca
 spec:
- endpoints:
-   - dnsName: step-ca.magicloud.lan
-     recordType: A
-     targets:
-       - 192.168.0.102
+  endpoints:
+    - dnsName: step-ca.magicloud.lan
+      recordType: A
+      targets:
+        - 192.168.0.102

@@ -1,0 +1,15 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: debian13
+spec:
+  storage:
+    accessModes:
+      - ReadWriteOnce
+    volumeMode: FromStorageProfile # not supported
+    resources:
+      requests:
+        storage: 128Gi
+  source:
+    http:
+      url: http://192.168.0.102:8000/debian13.qcow2.xz
