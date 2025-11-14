@@ -24,7 +24,7 @@ spec:
       networks:
       - name: bridge
         multus:
-          default: true
+          # default: true
           networkName: vm-bridge
       volumes:
         - name: disk0
