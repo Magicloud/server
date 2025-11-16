@@ -19,12 +19,16 @@ spec:
               disk:
                 bus: virtio
           interfaces:
-          - name: bridge
-            bridge: {}
+            - name: pod
+              masquerade: {}
+            - name: bridge
+              bridge: {}
       networks:
-      - name: bridge
-        multus:
-          networkName: vm-bridge
+        - name: pod
+          pod: {}
+        - name: bridge
+          multus:
+            networkName: vm-bridge
       volumes:
         - name: disk0
           persistentVolumeClaim:

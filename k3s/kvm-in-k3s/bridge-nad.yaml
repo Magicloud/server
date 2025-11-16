@@ -11,8 +11,6 @@ spec:
       "name": "bridge",
       "type": "bridge",
       "bridge": "kvm0",
-      "disableContainerInterface": false,
-      "macspoofchk": false,
       "ipam": {
         "type": "dhcp",
         "daemonSocketPath": "/run/cni/dhcp.sock"
@@ -23,37 +21,16 @@ apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
   name: vm-bridge
-  namespace: kube-system
 spec:
   config: '{
       "cniVersion": "1.0.0",
       "name": "bridge",
       "type": "bridge",
       "bridge": "kvm0",
-      "disableContainerInterface": false,
-      "macspoofchk": false,
       "ipam": {
         "type": "dhcp",
         "daemonSocketPath": "/run/cni/dhcp.sock"
       }
     }'
----
 # https://github.com/k8snetworkplumbingwg/multus-cni/blob/2ecd4f4b47b7821c7a65fac940dc5327bb4c5be8/pkg/k8sclient/k8sclient.go#L710
 # The CRD object of default network should only be defined in multusNamespace
-apiVersion: "k8s.cni.cncf.io/v1"
-kind: NetworkAttachmentDefinition
-metadata:
-  name: vm-bridge
-spec:
-  config: '{
-      "cniVersion": "1.0.0",
-      "name": "bridge",
-      "type": "bridge",
-      "bridge": "kvm0",
-      "disableContainerInterface": false,
-      "macspoofchk": false,
-      "ipam": {
-        "type": "dhcp",
-        "daemonSocketPath": "/run/cni/dhcp.sock"
-      }
-    }'
