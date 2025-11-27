@@ -55,6 +55,9 @@ metadata:
   namespace: registry
   annotations:
     external-dns.alpha.kubernetes.io/hostname: registry.magicloud.lan.
+    cert-manager.io/issuer: step-issuer
+    cert-manager.io/issuer-kind: StepClusterIssuer
+    cert-manager.io/issuer-group: certmanager.step.sm
 spec:
   rules:
   - host: registry.magicloud.lan
@@ -67,5 +70,9 @@ spec:
             name: registry
             port:
               number: 5000
+  tls:
+  - hosts:
+      - registry.magicloud.lan
+    secretName: registry-tls
 ---
 

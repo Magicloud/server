@@ -1,0 +1,10 @@
+ui:
+  dockerRegistryUrl: https://registry.magicloud.lan/
+
+  ingress:
+    enabled: true
+    host: registry-ui.magicloud.lan
+    ingressClassName: traefik
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: registry-ui.magicloud.lan.
+
