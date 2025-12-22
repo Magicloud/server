@@ -4,7 +4,7 @@
   home.homeDirectory = "/home/magicloud";
 
   home.packages = with pkgs;
-    [ uutils-coreutils-noprefix vscodium git git-lfs zsh libxml2 kubectl kubeseal kubernetes-helm p7zip virt-manager ansible terraform vimPlugins.vim-solarized8 gnupg starship nerdctl jq yq libcamera pkg-config clangStdenv clang jujutsu inotify-tools protobuf protolint openapi-generator-cli step-cli ];
+    [ vscodium git git-lfs zsh libxml2 kubectl kubeseal kubernetes-helm p7zip terraform vimPlugins.vim-solarized8 gnupg starship nerdctl jq yq libcamera pkg-config clangStdenv clang jujutsu inotify-tools protobuf protolint openapi-generator-cli step-cli musl.dev (hiPrio gcc) cilium-cli bpftrace ];
   home.file.".toprc".source = /mnt/data/dotfiles/toprc;
   home.file.".vimrc".source = /mnt/data/dotfiles/vimrc;
   home.file.".gitconfig".source = /mnt/data/dotfiles/gitconfig;
@@ -59,8 +59,8 @@
   };
   home.sessionVariables = {
     ZSH_THEME = "random";
+    EDITOR = "vim";
     PATH = "$HOME/.cargo/bin:$HOME/.krew/bin:$HOME/.local/bin:$PATH";
-#    LD_LIBRARY_PATH = "${pkgs.openvino}/runtime/lib/intel64/:$LD_LIBRARY_PATH";
     LD_LIBRARY_PATH = lib.makeLibraryPath [ pkgs.openssl ];
     LIBCLANG_PATH = pkgs.lib.makeLibraryPath [ pkgs.libclang.lib ];
     PKG_CONFIG_PATH = (builtins.concatStringsSep ":" (builtins.map (a: ''${a}/lib/pkgconfig'') [

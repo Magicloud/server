@@ -11,7 +11,7 @@
   nix.settings.allowed-users = [ "magicloud" ];
   boot.kernelModules = [ "kvm-amd" "kvm-intel" ];
   boot = {
-    kernelPackages = pkgs.linuxPackages_6_16;
+    kernelPackages = pkgs.linuxPackages_6_17;
     kernelParams = [ "nomodeset" ];
     loader = {
       generic-extlinux-compatible = {
@@ -27,7 +27,7 @@
     zfs.extraPools = [ "raid" ];
   };
   environment.systemPackages = with pkgs; [ k3s buildkit nftables
-    ((vim_configurable.override { }).customize {
+    ((vim-full.override { }).customize {
       vimrcConfig.customRC = ''
         set mouse=
         syntax on
@@ -38,7 +38,11 @@
   fonts.packages = [ pkgs.sarasa-gothic ];
   nixpkgs.config.allowUnfree = true;
   networking = {
-    proxy.httpsProxy = "http://192.168.0.102:8080/";
+#    nameservers = ["192.168.0.1"];
+    proxy = {
+      httpsProxy = "http://192.168.0.122:8080/";
+      noProxy = "127.0.0.1,localhost,.magicloud.lan,192.168.";
+    };
     useDHCP = false;
     hostId = "edeaf675";
     firewall.enable = false;
@@ -58,13 +62,14 @@
   programs.zsh.enable = true;
   programs.nix-ld = {
     enable = true;
-    package = pkgs.nix-ld-rs;
+#    package = pkgs.nix-ld-rs;
   };
   programs.gnupg.agent = {
     enable = true;
     pinentryPackage = pkgs.pinentry-tty;
   };
   time.timeZone = "Asia/Chongqing";
+  security.pki.certificates = ["${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" "/etc/ssl/certs/step.crt"];
   services = {
     zfs = {
       autoScrub.enable = true;
@@ -173,12 +178,13 @@
     extraFlags = toString [
       "--container-runtime-endpoint unix:///run/containerd/containerd.sock"
       "--write-kubeconfig-mode 644"
-#      "--kube-apiserver-arg=--secure-port=6344"
+#      "--flannel-backend none"
+#      "--disable-network-policy true"
     ];
   };
   systemd.services.containerd = {
     environment = {
-      HTTPS_PROXY = "http://192.168.0.102:8080/";
+      HTTPS_PROXY = "http://192.168.0.122:8080/";
     };
   };
 #  systemd.services.xrdp = {
@@ -199,7 +205,7 @@
     description = "Daily `home-manager switch`";
     path = [ pkgs.nix ];
     environment = {
-      HTTPS_PROXY = "http://192.168.0.121:8080/";
+      HTTPS_PROXY = "http://192.168.0.122:8080/";
     };
     serviceConfig = {
       ExecStart = "/run/wrappers/bin/sudo -u magicloud /home/magicloud/.nix-profile/bin/home-manager switch";

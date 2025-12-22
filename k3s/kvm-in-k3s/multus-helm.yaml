@@ -19,3 +19,5 @@ spec:
         multusAutoconfigDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
     manifests:
       dhcpDaemonSet: true
+    thickPlugin:
+      enabled: true
