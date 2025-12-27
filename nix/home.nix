@@ -4,7 +4,7 @@
   home.homeDirectory = "/home/magicloud";
 
   home.packages = with pkgs;
-    [ vscodium git git-lfs zsh libxml2 kubectl kubeseal kubernetes-helm p7zip terraform vimPlugins.vim-solarized8 gnupg starship nerdctl jq yq libcamera pkg-config clangStdenv clang jujutsu inotify-tools protobuf protolint openapi-generator-cli step-cli musl.dev (hiPrio gcc) cilium-cli bpftrace ];
+    [ vscodium git git-lfs zsh libxml2 kubectl kubeseal kubernetes-helm p7zip terraform vimPlugins.vim-solarized8 gnupg starship nerdctl jq yq libcamera pkg-config jujutsu protobuf protolint openapi-generator-cli step-cli musl.dev (lib.hiPrio gcc) clang cilium-cli bpftrace awscli2 ];
   home.file.".toprc".source = /mnt/data/dotfiles/toprc;
   home.file.".vimrc".source = /mnt/data/dotfiles/vimrc;
   home.file.".gitconfig".source = /mnt/data/dotfiles/gitconfig;
@@ -21,7 +21,7 @@
       syntaxHighlighting.enable = true;
       oh-my-zsh = {
         enable = true;
-        plugins = ["colorize" "command-not-found" "gitfast" "history" "history-substring-search" "rsync" "ssh-agent" "sudo" "systemd" ];
+        plugins = ["colorize" "command-not-found" "gitfast" "history" "history-substring-search" "rsync" "ssh-agent" "sudo" "systemd" "emotty" ];
       };
       initContent = lib.mkOrder 1500 ''
         # . ~/.local/lib/python3.12/site-packages/powerline/bindings/zsh/powerline.zsh
@@ -58,24 +58,21 @@
     };
   };
   home.sessionVariables = {
+    SCCACHE_BUCKET = "sccache";
+    SCCACHE_REGION = "auto";
+    SCCACHE_ENDPOINT = "minio.magicloud.lan:443";
+    SCCACHE_S3_ENABLE_VIRTUAL_HOST_STYLE = "true";
+    SCCACHE_S3_USE_SSL = "true";
+    SCCACHE_S3_SERVER_SIDE_ENCRYPTION = "false";
+    AWS_ACCESS_KEY_ID = "sccache";
+    AWS_SECRET_ACCESS_KEY = "sccache123";
     ZSH_THEME = "random";
     EDITOR = "vim";
     PATH = "$HOME/.cargo/bin:$HOME/.krew/bin:$HOME/.local/bin:$PATH";
     LD_LIBRARY_PATH = lib.makeLibraryPath [ pkgs.openssl ];
-    LIBCLANG_PATH = pkgs.lib.makeLibraryPath [ pkgs.libclang.lib ];
-    PKG_CONFIG_PATH = (builtins.concatStringsSep ":" (builtins.map (a: ''${a}/lib/pkgconfig'') [
-      pkgs.onnxruntime.dev pkgs.libcamera.dev pkgs.libclang pkgs.openssl.dev pkgs.libgpiod
-    ]));
-#    LIBTORCH = "${pkgs.libtorch-bin.dev}";
+    PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
     RUSTFLAGS = (builtins.concatStringsSep " " (builtins.map (a: ''-L ${a}/lib'') [
-      pkgs.postgresql # pkgs.openssl.dev # pkgs.leptonica pkgs.tesseract4 pkgs.opencv4WithoutCuda pkgs.libtorch-bin
-    ]));
-    BINDGEN_EXTRA_CLANG_ARGS = (builtins.concatStringsSep " " ((builtins.map (a: ''-I"${a}/include"'') [
-      pkgs.postgresql # pkgs.glibc.dev pkgs.openssl.dev pkgs.leptonica pkgs.tesseract4 pkgs.opencv4WithoutCuda pkgs.libtorch-bin.dev
-    ]) ++ [
-      ''-I"${pkgs.llvmPackages_latest.libclang.lib}/lib/clang/${pkgs.llvmPackages_latest.libclang.version}/include"''
-#      ''-I"${pkgs.glib.dev}/include/glib-2.0"''
-#      ''-I${pkgs.glib.out}/lib/glib-2.0/include/''
+      pkgs.postgresql pkgs.openssl.dev # pkgs.leptonica pkgs.tesseract4 pkgs.opencv4WithoutCuda pkgs.libtorch-bin
     ]));
   };
 

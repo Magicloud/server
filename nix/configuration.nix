@@ -26,7 +26,8 @@
     supportedFilesystems = [ "xfs" "zfs" ];
     zfs.extraPools = [ "raid" ];
   };
-  environment.systemPackages = with pkgs; [ k3s buildkit nftables
+  # git is needed by buildkit
+  environment.systemPackages = with pkgs; [ k3s buildkit git scx.full
     ((vim-full.override { }).customize {
       vimrcConfig.customRC = ''
         set mouse=
@@ -40,7 +41,7 @@
   networking = {
 #    nameservers = ["192.168.0.1"];
     proxy = {
-      httpsProxy = "http://192.168.0.122:8080/";
+      httpsProxy = "http://192.168.0.102:8080/";
       noProxy = "127.0.0.1,localhost,.magicloud.lan,192.168.";
     };
     useDHCP = false;
@@ -69,7 +70,7 @@
     pinentryPackage = pkgs.pinentry-tty;
   };
   time.timeZone = "Asia/Chongqing";
-  security.pki.certificates = ["${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" "/etc/ssl/certs/step.crt"];
+  security.pki.certificates = [ (builtins.readFile ./step.crt) ];
   services = {
     zfs = {
       autoScrub.enable = true;
@@ -120,9 +121,6 @@
     };
     virtualbox.host = {
       enable = false;
-      enableExtensionPack = true;
-      headless = true;
-      enableWebService = true;
     };
     containerd = {
       enable = true;
@@ -151,25 +149,6 @@
     };
     docker = {
       enable = false;
-      package = pkgs.docker_25;
-      daemon.settings = {
-        group = "docker";
-        hosts = [
-          "tcp://127.0.0.1:2375"
-          "fd://"
-        ];
-        live-restore = true;
-        log-driver = "journald";
-        storage-driver = "zfs";
-        data-root = "/mnt/data/docker";
-#        proxies = {
-#          http-proxy = "http://192.168.0.102:8080";
-#          https-proxy = "http://192.168.0.102:8080";
-#          no-proxy = "";
-#        };
-      };
-      storageDriver = "zfs";
-#      enableOnBoot = true;
     };
   };
   services.k3s = {
@@ -184,7 +163,7 @@
   };
   systemd.services.containerd = {
     environment = {
-      HTTPS_PROXY = "http://192.168.0.122:8080/";
+      HTTPS_PROXY = "http://192.168.0.102:8080/";
     };
   };
 #  systemd.services.xrdp = {
@@ -200,12 +179,15 @@
     serviceConfig = {
       ExecStart = "${pkgs.buildkit}/bin/buildkitd";
     };
-  };
+    environment = {
+      HTTPS_PROXY = "http://192.168.0.102:8080/";
+    };
+   };
   systemd.services.home-manager-switch = {
     description = "Daily `home-manager switch`";
     path = [ pkgs.nix ];
     environment = {
-      HTTPS_PROXY = "http://192.168.0.122:8080/";
+      HTTPS_PROXY = "http://192.168.0.102:8080/";
     };
     serviceConfig = {
       ExecStart = "/run/wrappers/bin/sudo -u magicloud /home/magicloud/.nix-profile/bin/home-manager switch";
@@ -230,5 +212,11 @@
       OnCalendar = "daily";
     };
     wantedBy = ["timers.target"];
+  };
+
+  services.scx = {
+    enable = true;
+    scheduler = "scx_lavd";
+    extraArgs = [ "--autopower" ];
   };
 }

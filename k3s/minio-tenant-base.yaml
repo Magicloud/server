@@ -20,7 +20,6 @@ spec:
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
-  creationTimestamp: null
   name: storage-user
   namespace: minio-tenant
 spec:
@@ -37,7 +36,6 @@ spec:
 apiVersion: minio.min.io/v2
 kind: Tenant
 metadata:
-  # annotations:
   #   prometheus.io/path: /minio/v2/metrics/cluster
   #   prometheus.io/port: "9000"
   #   prometheus.io/scrape: "true"
@@ -52,10 +50,10 @@ spec:
   mountPath: /export
   podManagementPolicy: Parallel
   env:
-    - name: MINIO_BROWSER_REDIRECT_URL
-      value: "http://192.168.0.102/minio/"
     - name: MINIO_PROMETHEUS_AUTH_TYPE
       value: "public"
+    - name: MINIO_DOMAIN
+      value: "minio.magicloud.lan"
   pools:
     - name: pool-0
       servers: 1
@@ -67,23 +65,12 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 1Ti
+              storage: 128Gi
           storageClassName: local-path
       volumesPerServer: 4
   requestAutoCert: false
   users:
     - name: storage-user
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  namespace: minio-tenant
-  name: strip-prefix-minio
-spec:
-  stripPrefix:
-    forceSlash: true
-    prefixes:
-      - /minio
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -91,19 +78,37 @@ metadata:
   name: minio-any-console
   namespace: minio-tenant
   annotations:
-    #   ingress.kubernetes.io/protocol: https
-    traefik.ingress.kubernetes.io/router.middlewares: minio-tenant-strip-prefix-minio@kubernetescrd
+    external-dns.alpha.kubernetes.io/hostname: "minio.magicloud.lan,.minio.magicloud.lan"
+    cert-manager.io/issuer: step-issuer
+    cert-manager.io/issuer-kind: StepClusterIssuer
+    cert-manager.io/issuer-group: certmanager.step.sm
 spec:
+  tls:
+    - secretName: minio-tls
+      hosts:
+        - minio.magicloud.lan
+        - "*.minio.magicloud.lan"
   rules:
-    - http:
+    - host: minio.magicloud.lan
+      http:
         paths:
-          - path: /minio
+          - path: /
             pathType: Prefix
             backend:
               service:
                 name: any-console
                 port:
                   number: 9090
+    - host: "*.minio.magicloud.lan"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: any-hl
+                port:
+                  number: 9000
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
