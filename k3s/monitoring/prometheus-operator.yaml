@@ -1,0 +1,70 @@
+alertmanager:
+  ingress:
+    enabled: true
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: alertmanager.magicloud.lan.
+      cert-manager.io/issuer: step-issuer
+      cert-manager.io/issuer-kind: StepClusterIssuer
+      cert-manager.io/issuer-group: certmanager.step.sm
+    hosts:
+      - alertmanager.magicloud.lan
+    tls:
+      - secretName: alertmanager-tls
+        hosts:
+        - alertmanager.magicloud.lan
+
+grafana:
+  enabled: true
+  operator:
+    dashboardsConfigMapRefEnabled: true
+    matchLabels:
+      app: grafana
+  adminUser: admin
+  adminPassword: prom-operator
+  ingress:
+    enabled: true
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: grafana.magicloud.lan.
+      cert-manager.io/issuer: step-issuer
+      cert-manager.io/issuer-kind: StepClusterIssuer
+      cert-manager.io/issuer-group: certmanager.step.sm
+    hosts:
+      - grafana.magicloud.lan
+    tls:
+      - secretName: grafana-tls
+        hosts:
+        - grafana.magicloud.lan
+prometheus:
+  enabled: true
+  prometheusSpec:
+    remoteWrite:
+      - url: http://mimir-distributor.monitoring.svc.cluster.local:8080/api/v1/push
+        headers:
+          X-Scope-OrgID: "prometheus"
+  ingress:
+    enabled: true
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: grafana.magicloud.lan.
+      cert-manager.io/issuer: step-issuer
+      cert-manager.io/issuer-kind: StepClusterIssuer
+      cert-manager.io/issuer-group: certmanager.step.sm
+    hosts:
+      - prometheus.magicloud.lan
+    tls:
+      - secretName: prometheus-tls
+        hosts:
+        - prometheus.magicloud.lan
+kubeApiServer:
+  enabled: false
+kubelet:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+coreDns:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false

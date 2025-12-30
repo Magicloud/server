@@ -67,6 +67,7 @@ spec:
             requests:
               storage: 128Gi
           storageClassName: local-path
+      # The number cannot be less than 4
       volumesPerServer: 4
   requestAutoCert: false
   users:
@@ -78,7 +79,7 @@ metadata:
   name: minio-any-console
   namespace: minio-tenant
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: "minio.magicloud.lan,.minio.magicloud.lan"
+    external-dns.alpha.kubernetes.io/hostname: "minio.magicloud.lan,minio-console.magicloud.lan.minio.magicloud.lan"
     cert-manager.io/issuer: step-issuer
     cert-manager.io/issuer-kind: StepClusterIssuer
     cert-manager.io/issuer-group: certmanager.step.sm
@@ -87,9 +88,10 @@ spec:
     - secretName: minio-tls
       hosts:
         - minio.magicloud.lan
+        - minio-console.magicloud.lan
         - "*.minio.magicloud.lan"
   rules:
-    - host: minio.magicloud.lan
+    - host: minio-console.magicloud.lan
       http:
         paths:
           - path: /
@@ -100,6 +102,16 @@ spec:
                 port:
                   number: 9090
     - host: "*.minio.magicloud.lan"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: any-hl
+                port:
+                  number: 9000
+    - host: "minio.magicloud.lan"
       http:
         paths:
           - path: /

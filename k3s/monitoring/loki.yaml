@@ -1,0 +1,63 @@
+# global:
+#   extraEnv:
+#     - name: LOKI0_USERNAME
+#       valueFrom:
+#         secretKeyRef:
+#           name: minio-user-loki0
+#           key: username
+#     - name: LOKI0_PASSWORD
+#       valueFrom:
+#         secretKeyRef:
+#           name: minio-user-loki0
+#           key: password
+
+deploymentMode: SingleBinary
+loki:
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: s3
+    bucketNames:
+      chunks: chunks-loki
+      ruler: ruler-loki
+      admin: admin-loki
+    s3:
+      endpoint: any-hl.minio-tenant.svc.cluster.local:9000
+      # I could not find a way to pass this via secretRef
+      secretAccessKey: Yr70hlAatgY3
+      accessKeyId: loki0
+      s3ForcePathStyle: true
+      insecure: true
+    # object_store:
+    #   type: s3
+    #   s3:
+    #     endpoint: any-hl.minio-tenant.svc.cluster.local:9000
+    #     access_key_id: ${LOKI1_USERNAME}
+    #     secret_access_key: ${LOKI1_PASSWORD}
+    #     insecure: true
+  schemaConfig:
+    configs:
+      - from: "2025-01-01"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          period: 24h
+        chunks:
+          period: 24h
+
+singleBinary:
+  replicas: 1
+write:
+  replicas: 0
+read:
+  replicas: 0
+backend:
+  replicas: 0
+monitoring:
+  dashboards:
+    enabled: true
+  rules:
+    enabled: true
+  serviceMonitor:
+    enabled: true

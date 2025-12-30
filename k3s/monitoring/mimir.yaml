@@ -1,0 +1,94 @@
+global:
+  extraEnv:
+    - name: AM_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: minio-user-alertmanager-mimir
+          key: username
+    - name: AM_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-user-alertmanager-mimir
+          key: password
+    - name: MIMIR_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: minio-user-mimir
+          key: username
+    - name: MIMIR_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-user-mimir
+          key: password
+    - name: RULER_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: minio-user-ruler-mimir
+          key: username
+    - name: RULER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-user-ruler-mimir
+          key: password
+
+mimir:
+  structuredConfig:
+    alertmanager_storage:
+      backend: s3
+      s3:
+        access_key_id: ${AM_USERNAME}
+        bucket_name: ${AM_USERNAME}
+        endpoint: any-hl.minio-tenant.svc.cluster.local:9000
+        insecure: true
+        secret_access_key: "${AM_PASSWORD}"
+    blocks_storage:
+      backend: s3
+      s3:
+        access_key_id: ${MIMIR_USERNAME}
+        bucket_name: ${MIMIR_USERNAME}
+        endpoint: any-hl.minio-tenant.svc.cluster.local:9000
+        insecure: true
+        secret_access_key: "${MIMIR_PASSWORD}"
+    ruler_storage:
+      backend: s3
+      s3:
+        endpoint: any-hl.minio-tenant.svc.cluster.local:9000
+        bucket_name: ${RULER_USERNAME}
+        access_key_id: ${RULER_USERNAME}
+        secret_access_key: "${RULER_PASSWORD}"
+        insecure: true
+
+minio:
+  enabled: false
+nginx:
+  enabled: false
+
+metaMonitoring:
+  dashboards:
+    enabled: true
+  serviceMonitor:
+    enabled: true
+  prometheusRule:
+    enabled: true
+    mimirAlerts: true
+    mimirRules: true
+
+alertmanager:
+  zoneAwareReplication:
+    enabled: false
+ingester:
+  # Less than 2 would give 500 error
+  replicas: 2
+  zoneAwareReplication:
+    enabled: false
+ruler_querier:
+  replicas: 1
+ruler_query_scheduler:
+  replicas: 1
+querier:
+  replicas: 1
+query_scheduler:
+  replicas: 1
+store_gateway:
+  zoneAwareReplication:
+    enabled: false
