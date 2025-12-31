@@ -44,3 +44,10 @@ module "loki0_buckets" {
   buckets = ["chunks-loki", "ruler-loki", "admin-loki"]
   k8s_secret_namespace = "monitoring"
 }
+
+module "tempo_buckets" {
+  source = "./buckets"
+  username = "tempo"
+  buckets = ["tempo"]
+  k8s_secret_namespace = "monitoring"
+}

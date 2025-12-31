@@ -3,6 +3,11 @@ serviceMonitor:
 alloy:
   mounts:
     varlog: true
+  extraPorts:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
   configMap:
     content: |-
       loki.write "default" {
@@ -85,4 +90,22 @@ alloy:
         job_name   = "integrations/kubernetes/eventhandler"
         log_format = "logfmt"
         forward_to = [loki.write.default.receiver]
+      }
+      otelcol.receiver.otlp "tracing" {
+        grpc {
+          endpoint = "0.0.0.0:4317"
+        }
+        output {
+          traces = [otelcol.exporter.otlp.tempo.input]
+        }
+      }
+      otelcol.exporter.otlp "tempo" {
+        client {
+          // grpc is 4317
+          endpoint = "http://tempo.monitoring.svc.cluster.local:4318"
+          tls {
+            insecure = true
+            insecure_skip_verify = true
+          }
+        }
       }

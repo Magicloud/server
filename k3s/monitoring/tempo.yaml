@@ -1,0 +1,15 @@
+tempo:
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: "http://p-o-kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo
+        endpoint: any-hl.minio-tenant.svc.cluster.local:9000
+        access_key: tempo
+        secret_key: 3t7CABZ8ndLQ
+        insecure: true
+serviceMonitor:
+  enabled: true
