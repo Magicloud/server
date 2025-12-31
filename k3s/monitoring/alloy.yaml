@@ -102,7 +102,8 @@ alloy:
       otelcol.exporter.otlp "tempo" {
         client {
           // grpc is 4317
-          endpoint = "http://tempo.monitoring.svc.cluster.local:4318"
+          // http is 4318
+          endpoint = "http://tempo.monitoring.svc.cluster.local:4317"
           tls {
             insecure = true
             insecure_skip_verify = true
