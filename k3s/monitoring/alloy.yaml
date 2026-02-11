@@ -91,13 +91,17 @@ alloy:
         log_format = "logfmt"
         forward_to = [loki.write.default.receiver]
       }
-      otelcol.receiver.otlp "tracing" {
+      otelcol.receiver.otlp "default" {
         grpc {
           endpoint = "0.0.0.0:4317"
         }
         output {
           traces = [otelcol.exporter.otlp.tempo.input]
+          logs = [otelcol.exporter.loki.default.input]
         }
+      }
+      otelcol.exporter.loki "default" {
+        forward_to = [loki.write.default.receiver]
       }
       otelcol.exporter.otlp "tempo" {
         client {

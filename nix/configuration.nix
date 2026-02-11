@@ -11,7 +11,7 @@
   nix.settings.allowed-users = [ "magicloud" ];
   boot.kernelModules = [ "kvm-amd" "kvm-intel" ];
   boot = {
-    kernelPackages = pkgs.linuxPackages_6_17;
+    kernelPackages = pkgs.linuxPackages_6_18;
     kernelParams = [ "nomodeset" ];
     loader = {
       generic-extlinux-compatible = {
@@ -24,6 +24,7 @@
       options zfs l2arc_noprefetch=0 l2arc_write_boost=33554432 l2arc_write_max=16777216 zfs_arc_max=2147483648
     '';
     supportedFilesystems = [ "xfs" "zfs" ];
+    zfs.package = pkgs.zfs_unstable;
     zfs.extraPools = [ "raid" ];
   };
   # git is needed by buildkit
@@ -104,8 +105,8 @@
     shell = pkgs.zsh;
   };
   system = {
-    stateVersion = "25.11";
-    autoUpgrade.enable = false;
+    stateVersion = "26.05";
+    autoUpgrade.enable = true;
   };
   virtualisation = {
     libvirtd = {
@@ -180,7 +181,7 @@
       ExecStart = "${pkgs.buildkit}/bin/buildkitd";
     };
     environment = {
-      HTTPS_PROXY = "http://192.168.0.102:8080/";
+      https_proxy = "http://192.168.0.102:8080/";
     };
    };
   systemd.services.home-manager-switch = {
@@ -219,4 +220,16 @@
     scheduler = "scx_lavd";
     extraArgs = [ "--autopower" ];
   };
+
+  security.sudo.extraRules = [
+    {
+      users = ["magicloud"];
+      commands = [
+        {
+          command = "/home/magicloud/.nix-profile/bin/nerdctl";
+          options = ["NOPASSWD"];
+        }
+      ];
+    }
+  ];
 }

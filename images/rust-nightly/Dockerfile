@@ -2,8 +2,7 @@ FROM rust:alpine AS downloader
 
 RUN apk add --no-cache curl && \
     curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | sh && \
-    cargo binstall wild-linker && \
-    cargo binstall sccache
+    cargo binstall wild-linker
 
 FROM rust:alpine
 

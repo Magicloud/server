@@ -4,12 +4,13 @@
   home.homeDirectory = "/home/magicloud";
 
   home.packages = with pkgs;
-    [ vscodium git git-lfs zsh libxml2 kubectl kubeseal kubernetes-helm p7zip terraform vimPlugins.vim-solarized8 gnupg starship nerdctl jq yq libcamera pkg-config jujutsu protobuf protolint openapi-generator-cli step-cli musl.dev (lib.hiPrio gcc) clang cilium-cli bpftrace awscli2 ];
+    [ vscodium git git-lfs zsh libxml2 kubectl kubeseal kubernetes-helm p7zip terraform vimPlugins.vim-solarized8 gnupg starship nerdctl jq yq-go libcamera pkg-config jujutsu protobuf protolint openapi-generator-cli step-cli musl.dev (lib.hiPrio gcc) clang cilium-cli bpftrace awscli2 lldb bpftools ];
   home.file.".toprc".source = /mnt/data/dotfiles/toprc;
   home.file.".vimrc".source = /mnt/data/dotfiles/vimrc;
   home.file.".gitconfig".source = /mnt/data/dotfiles/gitconfig;
   programs = {
     home-manager.enable = true;
+    command-not-found.enable = true;
     vim = {
       enable = true;
       plugins = with pkgs.vimPlugins; [ vim-lastplace ];
@@ -58,6 +59,8 @@
     };
   };
   home.sessionVariables = {
+    FERRUMPY_REPL_WORKER = "/home/magicloud/.local/lib/ferrumpy/ferrumpy-0.1.3.data/scripts/ferrumpy-repl-worker";
+    KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
     SCCACHE_BUCKET = "sccache";
     SCCACHE_REGION = "auto";
     SCCACHE_ENDPOINT = "minio.magicloud.lan:443";
