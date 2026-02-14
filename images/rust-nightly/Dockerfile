@@ -7,7 +7,6 @@ RUN apk add --no-cache curl && \
 FROM rust:alpine
 
 COPY --from=downloader /usr/local/cargo/bin/wild /usr/local/cargo/bin/wild
-COPY --from=downloader /usr/local/cargo/bin/sccache /usr/local/cargo/bin/sccache
 COPY --from=downloader /usr/local/cargo/bin/cargo-binstall /usr/local/cargo/bin/cargo-binstall
 
 RUN rustup toolchain install nightly-x86_64-unknown-linux-musl && \

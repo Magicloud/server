@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alloy-debug
+  namespace: monitoring
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: alloy-debug.magicloud.lan.
+spec:
+  rules:
+  - host: alloy-debug.magicloud.lan
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alloy
+            port:
+              number: 12345
