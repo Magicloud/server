@@ -42,7 +42,7 @@
   networking = {
 #    nameservers = ["192.168.0.1"];
     proxy = {
-      httpsProxy = "http://192.168.0.102:8080/";
+      httpsProxy = "http://192.168.0.122:8080/";
       noProxy = "127.0.0.1,localhost,.magicloud.lan,192.168.";
     };
     useDHCP = false;
@@ -111,17 +111,6 @@
   virtualisation = {
     libvirtd = {
       enable = true;
-#      extraConfig = ''
-#unix_sock_group = "libvirtd"
-#unix_sock_rw_perms = "0770"
-#'';
-#      qemu.ovmf.packages = [(pkgs.OVMF.override {
-#        secureBoot = true;
-#        tpmSupport = true;
-#      }).fd];
-    };
-    virtualbox.host = {
-      enable = false;
     };
     containerd = {
       enable = true;
@@ -136,20 +125,11 @@
           };
         in {
           plugins."io.containerd.grpc.v1.cri".cni = {
-#            bin_dir = "${fullCNIPlugins}/bin";
             bin_dir = "/var/lib/rancher/k3s/data/cni";
             conf_dir = "/var/lib/rancher/k3s/agent/etc/cni/net.d/";
           };
           state = "/mnt/data/k3s/";
-          # Optionally set private registry credentials here instead of using /etc/rancher/k3s/registries.yaml
-          # plugins."io.containerd.grpc.v1.cri".registry.configs."registry.example.com".auth = {
-          #  username = "";
-          #  password = "";
-          # };
         };
-    };
-    docker = {
-      enable = false;
     };
   };
   services.k3s = {
@@ -158,13 +138,16 @@
     extraFlags = toString [
       "--container-runtime-endpoint unix:///run/containerd/containerd.sock"
       "--write-kubeconfig-mode 644"
-#      "--flannel-backend none"
-#      "--disable-network-policy true"
+      "--flannel-backend none"
+      "--disable-network-policy"
+      "--disable-kube-proxy"
+      "--disable servicelb"
+      "--disable traefik"
     ];
   };
   systemd.services.containerd = {
     environment = {
-      HTTPS_PROXY = "http://192.168.0.102:8080/";
+      HTTPS_PROXY = "http://192.168.0.122:8080/";
     };
   };
 #  systemd.services.xrdp = {
@@ -181,14 +164,14 @@
       ExecStart = "${pkgs.buildkit}/bin/buildkitd";
     };
     environment = {
-      https_proxy = "http://192.168.0.102:8080/";
+      https_proxy = "http://192.168.0.122:8080/";
     };
    };
   systemd.services.home-manager-switch = {
     description = "Daily `home-manager switch`";
     path = [ pkgs.nix ];
     environment = {
-      HTTPS_PROXY = "http://192.168.0.102:8080/";
+      HTTPS_PROXY = "http://192.168.0.122:8080/";
     };
     serviceConfig = {
       ExecStart = "/run/wrappers/bin/sudo -u magicloud /home/magicloud/.nix-profile/bin/home-manager switch";

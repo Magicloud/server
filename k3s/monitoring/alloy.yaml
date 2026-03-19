@@ -13,6 +13,9 @@ alloy:
       targetPort: 4318
   configMap:
     content: |-
+      logging {
+        level = "debug"
+      }
       livedebugging {
         enabled = true
       }
@@ -92,6 +95,13 @@ alloy:
           regex = "^(\\S+):\\/\\/.+$"
           replacement = "$1"
         }
+        // Reform app value
+        rule {
+          source_labels = ["app", "job"]
+          target_label = "service_name"
+          regex = "^([^;]+);.*$|^;[^/]*/(.+)$"
+          replacement = "$1$2-console"
+        }
       }
       loki.source.kubernetes "pod_logs" {
         targets    = discovery.relabel.pod_logs.output
@@ -112,6 +122,7 @@ alloy:
         output {
           traces = [otelcol.exporter.otlp.tempo.input]
           logs = [otelcol.exporter.loki.default.input]
+          metrics = [otelcol.exporter.prometheus.default.input]
         }
       }
       otelcol.exporter.loki "default" {
@@ -125,6 +136,17 @@ alloy:
           tls {
             insecure = true
             insecure_skip_verify = true
+          }
+        }
+      }
+      otelcol.exporter.prometheus "default" {
+        forward_to = [prometheus.remote_write.mimir.receiver]
+      }
+      prometheus.remote_write "mimir" {
+        endpoint {
+          url = "http://mimir-distributor.monitoring.svc.cluster.local:8080/api/v1/push"
+          headers = {
+            "X-Scope-OrgID" = "otlp",
           }
         }
       }

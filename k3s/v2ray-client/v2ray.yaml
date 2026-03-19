@@ -12,6 +12,8 @@ spec:
     metadata:
       labels:
         app: v2ray
+      annotations:
+        roy.magiclouds.cn/skip: "true"
     spec:
       volumes:
       - name: config-json
