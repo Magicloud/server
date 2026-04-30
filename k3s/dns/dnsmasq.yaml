@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dnsmasq
+  namespace: dns
+  labels:
+    app: dnsmasq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dnsmasq
+  template:
+    metadata:
+      labels:
+        app: dnsmasq
+    spec:
+      containers:
+      - name: dnsmasq
+        image: magicloud/dnsmasq:reload
+        args: ["--server=10.43.57.97", "--conf-file=/tmp/etc/dnsmasq.conf"]
+        ports:
+        - containerPort: 53
+          protocol: TCP
+        - containerPort: 53
+          protocol: UDP
+        volumeMounts:
+        - name: conf
+          mountPath: /etc/dnsmasq.d/
+          readOnly: true
+        - name: dnsmasq-conf
+          mountPath: "/tmp/etc/"
+          readOnly: true
+      volumes:
+      - name: conf
+        hostPath:
+          path: /mnt/data/conf/dnsmasq/
+      - name: dnsmasq-conf
+        configMap:
+          name: dnsmasq-conf
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dnsmasq-conf
+  namespace: dns
+data:
+  dnsmasq.conf: |
+    keep-in-foreground
+    no-resolv
+    no-poll
+    no-hosts
+    bogus-priv
+    domain-needed
+    local=/magicloud.lan/
+    domain=magicloud.lan
+    conf-dir=/etc/dnsmasq.d/,*.conf
+    user=root
+    group=root
+    log-queries
+    log-async=1024
+    log-facility=-
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fetch-rules
+  namespace: dns
+spec:
+  schedule: "0 0 * * 1"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: "Never"
+          containers:
+          - name: fetch-rules
+            env:
+              - name: HTTPS_PROXY
+                value: http://192.168.0.122:8080
+            image: busybox
+            args: ["sh", "-c", "cd /etc/dnsmasq.d/ && wget https://github.com/felixonmars/dnsmasq-china-list/raw/refs/heads/master/accelerated-domains.china.conf && wget https://github.com/felixonmars/dnsmasq-china-list/raw/refs/heads/master/bogus-nxdomain.china.conf"]
+            volumeMounts:
+            - name: conf
+              mountPath: /etc/dnsmasq.d/
+          volumes:
+          - name: conf
+            hostPath:
+              path: /mnt/data/conf/dnsmasq/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dnsmasq
+  namespace: dns
+spec:
+  type: LoadBalancer
+  loadBalancerClass: io.cilium/node
+  selector:
+    app: dnsmasq
+  ports:
+    - protocol: TCP
+      port: 53
+      targetPort: 53
+      name: dns-tcp
+    - protocol: UDP
+      port: 53
+      targetPort: 53
+      name: dns-udp
+---

@@ -34,6 +34,7 @@
         set mouse=
         syntax on
         set number relativenumber
+        set ignorecase
       '';
     })
   ];
@@ -45,6 +46,7 @@
       httpsProxy = "http://192.168.0.122:8080/";
       noProxy = "127.0.0.1,localhost,.magicloud.lan,192.168.";
     };
+    useNetworkd = false;
     useDHCP = false;
     hostId = "edeaf675";
     firewall.enable = false;
@@ -55,12 +57,17 @@
       enp4s0f1.useDHCP = false;
       kvm0.useDHCP = true;
     };
-    bridges = {
-      kvm0 = {
-        interfaces = [ "enp3s0f0" ];
-      };
+    bridges.kvm0 = {
+      interfaces = [ "enp3s0f0" ];
     };
   };
+#  systemd.network.networks."kvm0" = {
+#    matchConfig.Name = "kvm0";
+#    networkConfig.DHCP = "no";
+#    address = ["192.168.0.102/24"];
+#    routes = [{ Gateway = "192.168.0.1"; }];
+#    dns = [ "192.168.0.1" ];
+#  };
   programs.zsh.enable = true;
   programs.nix-ld = {
     enable = true;
@@ -114,22 +121,13 @@
     };
     containerd = {
       enable = true;
-      settings =
-        let
-          fullCNIPlugins = pkgs.buildEnv {
-            name = "full-cni";
-            paths = with pkgs;[
-              cni-plugins
-              cni-plugin-flannel
-            ];
-          };
-        in {
-          plugins."io.containerd.grpc.v1.cri".cni = {
-            bin_dir = "/var/lib/rancher/k3s/data/cni";
-            conf_dir = "/var/lib/rancher/k3s/agent/etc/cni/net.d/";
-          };
-          state = "/mnt/data/k3s/";
+      settings = {
+        plugins."io.containerd.grpc.v1.cri".cni = {
+          bin_dir = "/var/lib/rancher/k3s/data/cni";
+          conf_dir = "/var/lib/rancher/k3s/agent/etc/cni/net.d/";
         };
+        state = "/mnt/data/k3s/";
+      };
     };
   };
   services.k3s = {
@@ -145,11 +143,8 @@
       "--disable traefik"
     ];
   };
-  systemd.services.containerd = {
-    environment = {
-      HTTPS_PROXY = "http://192.168.0.122:8080/";
-    };
-  };
+  systemd.services.containerd.environment.https_proxy = "http://192.168.0.122:8080/";
+  systemd.services.containerd.environment.no_proxy = "127.0.0.1,localhost,.magicloud.lan,192.168.";
 #  systemd.services.xrdp = {
 #    serviceConfig = {
 #      Group = lib.mkForce "root";
@@ -165,6 +160,7 @@
     };
     environment = {
       https_proxy = "http://192.168.0.122:8080/";
+      no_proxy = "127.0.0.1,localhost,.magicloud.lan,192.168.";
     };
    };
   systemd.services.home-manager-switch = {
@@ -174,7 +170,7 @@
       HTTPS_PROXY = "http://192.168.0.122:8080/";
     };
     serviceConfig = {
-      ExecStart = "/run/wrappers/bin/sudo -u magicloud /home/magicloud/.nix-profile/bin/home-manager switch";
+      ExecStart = "/run/wrappers/bin/sudo -u magicloud /usr/bin/env bash -c 'nix-channel --update && home-manager switch'";
     };
   };
   systemd.timers.home-manager-switch = {

@@ -4,7 +4,7 @@
   home.homeDirectory = "/home/magicloud";
 
   home.packages = with pkgs;
-    [ vscodium git git-lfs zsh libxml2 kubectl kubeseal kubernetes-helm p7zip terraform vimPlugins.vim-solarized8 gnupg starship nerdctl jq yq-go libcamera pkg-config jujutsu protobuf protolint openapi-generator-cli step-cli musl.dev (lib.hiPrio gcc) clang cilium-cli hubble bpftrace awscli2 lldb bpftools ];
+    [ vscodium git git-lfs zsh libxml2 kubectl kubeseal kubernetes-helm p7zip terraform vimPlugins.vim-solarized8 gnupg starship nerdctl jq yq-go libcamera pkg-config jujutsu protobuf protolint openapi-generator-cli step-cli musl.dev (lib.hiPrio gcc) clang cilium-cli hubble bpftrace awscli2 lldb bpftools vagrant packer pwru ];
   home.file.".toprc".source = /mnt/data/dotfiles/toprc;
   home.file.".vimrc".source = /mnt/data/dotfiles/vimrc;
   home.file.".gitconfig".source = /mnt/data/dotfiles/gitconfig;

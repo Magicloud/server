@@ -41,6 +41,7 @@ metadata:
   namespace: registry
 spec:
   type: LoadBalancer
+  loadBalancerClass: io.cilium/node
   selector:
     app: registry
   ports:
